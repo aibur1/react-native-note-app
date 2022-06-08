@@ -4,6 +4,7 @@ import {
   View, 
   StyleSheet, 
 } from 'react-native';
+import { useState } from 'react';
 import { NavigationContainer,DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from './src/screens/Main/Home/Home';
@@ -14,6 +15,7 @@ import SignUp from './src/screens/Auth/SignUp/SignUp';
 import { initializeApp } from "firebase/app";
 import { getFirestore} from "firebase/firestore";
 import { getAuth } from 'firebase/auth';
+import FlashMessage from 'react-native-flash-message';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -40,8 +42,12 @@ const AppTheme = {
 }
 
 const Stack = createNativeStackNavigator();
+
 export default function App() {
-  const user =false //not authenticated
+
+  // const user = false //not authenticated
+  // [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(false);
 
   return (
     <NavigationContainer theme={AppTheme}>
@@ -62,6 +68,7 @@ export default function App() {
         }
         
       </Stack.Navigator>
+      < FlashMessage position="top" />
     </NavigationContainer>
     
   );

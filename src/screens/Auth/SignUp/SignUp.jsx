@@ -6,12 +6,24 @@ import {
     StyleSheet,
     Pressable,
     SafeAreaView, 
+    ActivityIndicator
    } from 'react-native';
   import React, {useState} from 'react';
   import Input from '../../../components/Input/Input';
   import Button from '../../../components/Button/Button';
   import { createUserWithEmailAndPassword } from "firebase/auth";
   import {auth, db} from "../../../../App";
+  import {
+     addDoc,
+     getDoc,
+     doc,
+     onSnapshot,
+     query,
+     where,
+     collection,
+  } from "firebase/firestore";
+import { showMessage } from 'react-native-flash-message';
+
   
   // const auth = getAuth();
   const genderOptions = ["Male", "Female"];
@@ -22,23 +34,48 @@ import {
      const [password, setPassword] = useState("");
      const [age, setAge] = useState("");
      const [name, setName] = useState("");
+     const [loading, setLoading]= useState(false)
   
-     const signup = () => {
+     const signup = async () => {
   
-      // 1- create a new user
-      createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Signed in 
-        const user = userCredential.user;
-        console.log("user created", user);
-        //2- then we create the user profile in the database.
-        
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // ..
-      });
+      // // 1- create a new user and handle async function with .then
+
+
+      // createUserWithEmailAndPassword(auth, email, password)
+      // .then((userCredential) => {
+      //   // Signed in 
+      //   const user = userCredential.user;
+      //   console.log("user created", user);
+       
+      // })
+      // .catch((error) => {
+      //   const errorCode = error.code;
+      //   const errorMessage = error.message;
+      //   // ..
+      // });
+
+      // 1. create user with email and password and handle async function with async and await
+          try{
+            const result = await createUserWithEmailAndPassword(auth, email, password);
+            console.log("result -->", result)
+
+            //2. add user profile to database.
+            const docRef = await addDoc(collection(db, "users"),{
+              name:name,
+              email:email,
+              age:age,
+              gender:gender,
+              uid:result.user.uid,
+            })
+          }catch (error){
+            console.log("error -->", error);
+            showMessage({
+              message:"ERRO!",
+              type:"danger",
+            })
+          }
+     
+      
      }
   
    return (
@@ -73,7 +110,13 @@ import {
        </View>
   
        <View style={{ flex:1, justifyContent:"flex-end",  alignItems:"center",}}>
-    <Button title={"Signup"} customStyles={{alignSelf:"center", marginBottom:60}} onPress={signup} />
+
+         {loading ? (
+            <ActivityIndicator/>
+            ) : (
+              <Button title={"Signup"} customStyles={{alignSelf:"center", marginBottom:60}} onPress={signup} />
+            )}
+    
   
          <Pressable>
            <Text>Already have an account ?{" "}<Text style={{color:"green", fontWeight:"bold"}}>Sign in</Text></Text>
